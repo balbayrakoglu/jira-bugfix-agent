@@ -1,0 +1,90 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: jira-bugfix-agent
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
+  threads:
+    virtual:
+      enabled: true
+  http:
+    client:
+      connect-timeout: 10s
+      read-timeout: 30s
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:./data/bugfix-agent;AUTO_SERVER=TRUE}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+agent:
+  admin-token: ${AGENT_ADMIN_TOKEN:changeme-admin-token}
+  max-concurrent-jobs: 2
+
+  jira:
+    base-url: ${JIRA_BASE_URL:https://your-company.atlassian.net}
+    browse-url: ${JIRA_BROWSE_URL:https://your-company.atlassian.net}
+    email: ${JIRA_EMAIL:bot@your-company.com}
+    api-token: ${JIRA_API_TOKEN:changeme}
+    webhook-secret: ${JIRA_WEBHOOK_SECRET:changeme}
+    signature-header: X-Hub-Signature
+    trigger-label: ai-bugfix
+    issue-types: [Bug]
+    project-keys: []
+    comment-enabled: true
+
+  anthropic:
+    base-url: https://api.anthropic.com
+    api-key: ${ANTHROPIC_API_KEY:changeme}
+    model: ${ANTHROPIC_MODEL:claude-sonnet-5-5}
+    max-tokens: 16000
+    timeout: 5m
+    output-language: ${AGENT_DOC_LANGUAGE:English}
+
+  github:
+    api-url: https://api.github.com
+    token: ${GITHUB_TOKEN:changeme}
+    owner: ${GITHUB_OWNER:your-github-username}
+    repo: ${GITHUB_REPO:demo-shop}
+    base-branch: ${GITHUB_BASE_BRANCH:main}
+    branch-prefix: bugfix/
+    pr-labels: [ai-generated, bugfix]
+    draft-pr: true
+
+  confluence:
+    enabled: ${CONFLUENCE_ENABLED:true}
+    base-url: ${CONFLUENCE_BASE_URL:https://your-company.atlassian.net/wiki}
+    email: ${CONFLUENCE_EMAIL:${JIRA_EMAIL:changeme}}
+    api-token: ${CONFLUENCE_API_TOKEN:${JIRA_API_TOKEN:changeme}}
+    space-id: ${CONFLUENCE_SPACE_ID:changeme}
+    parent-page-id: ${CONFLUENCE_PARENT_PAGE_ID:changeme}
+
+  mode:
+    default-mode: ANALYZE_ONLY
+    analyze-only-labels: [ai-analyze-only]
+    auto-pr-labels: [ai-auto-fix]
+    auto-pr-priorities: [Highest, High]
+    min-confidence-for-pr: 0.6
+    docs-pr-for-analysis: true
+
+  repo:
+    work-dir: ${AGENT_WORK_DIR:./work}
+    clone-depth: 0
+    verify-command: ${AGENT_VERIFY_COMMAND:./mvnw -B -q verify}
+    verify-timeout: 15m
+    docs-dir: docs/bugfixes
+    max-context-files: 12
+    max-context-chars: 180000
+    max-changed-files: 5
+    protected-paths: [.github/, .git/, .mvn/, mvnw, Dockerfile, "src/main/resources/application"]

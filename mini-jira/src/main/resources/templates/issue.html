@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head th:replace="~{fragments :: head(${issue.key()})}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <div class="card">
+        <span class="muted" th:text="${issue.projectKey()} + ' / ' + ${issue.key()}">SHOP / SHOP-1</span>
+        <h1 th:text="${issue.summary()}">Özet</h1>
+        <div>
+            <span class="lozenge" th:text="${issue.issueType()}">Bug</span>
+            <span class="lozenge" th:text="'Öncelik: ' + ${issue.priority()}">High</span>
+            <span class="lozenge" th:text="${issue.status()}">To Do</span>
+            <span class="lozenge ok" th:each="l : ${issue.labels()}" th:text="${l}">label</span>
+        </div>
+        <p class="watch" th:if="${watch}">
+            Sayfa her 10 saniyede yenileniyor; agent yorumu geldiğinde aşağıda görünecek.
+            <a th:href="@{/browse/{k}(k=${issue.key()})}">Durdur</a>
+        </p>
+        <script th:if="${watch}">setTimeout(() => location.reload(), 10000);</script>
+    </div>
+
+    <div class="card">
+        <h2>Açıklama</h2>
+        <div th:utext="${descriptionHtml}"></div>
+        <p class="muted" th:if="${#strings.isEmpty(descriptionHtml)}">Açıklama yok.</p>
+    </div>
+
+    <div class="card">
+        <h2>Etiketler ve durum</h2>
+        <div class="row">
+            <form class="inline-form" method="post" th:action="@{/browse/{k}/labels(k=${issue.key()})}">
+                <input type="text" name="add" placeholder="Etiket ekle (ör. ai-bugfix)">
+                <button class="btn secondary" type="submit">Ekle</button>
+            </form>
+            <form class="inline-form" method="post" th:action="@{/browse/{k}/labels(k=${issue.key()})}">
+                <select name="remove">
+                    <option th:each="l : ${issue.labels()}" th:value="${l}" th:text="${l}">label</option>
+                </select>
+                <button class="btn secondary" type="submit">Kaldır</button>
+            </form>
+            <form class="inline-form" method="post" th:action="@{/browse/{k}/status(k=${issue.key()})}">
+                <select name="status">
+                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                            th:selected="${s == issue.status()}">To Do</option>
+                </select>
+                <button class="btn secondary" type="submit">Güncelle</button>
+            </form>
+        </div>
+        <p class="muted">Etiket veya durum değişikliği <code>jira:issue_updated</code> webhook'u gönderir.</p>
+    </div>
+
+    <div class="card">
+        <h2 th:text="'Yorumlar (' + ${#lists.size(comments)} + ')'">Yorumlar</h2>
+        <div th:each="c : ${comments}" th:class="${c.fromAgent()} ? 'comment agent' : 'comment'">
+            <div class="muted">
+                <strong th:text="${c.author()}">yazar</strong> ·
+                <span th:text="${c.time()}">tarih</span>
+            </div>
+            <div class="wrap-anywhere" th:utext="${c.html()}"></div>
+        </div>
+        <form method="post" th:action="@{/browse/{k}/comments(k=${issue.key()})}">
+            <label for="body">Yorum ekle</label>
+            <textarea id="body" name="body" rows="3" required></textarea>
+            <p><button class="btn secondary" type="submit">Gönder</button></p>
+        </form>
+    </div>
+</main>
+</body>
+</html>

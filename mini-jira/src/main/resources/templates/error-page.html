@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head th:replace="~{fragments :: head('Hata')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <div class="card">
+        <h1>Bir sorun oluştu</h1>
+        <p th:text="${message}">mesaj</p>
+        <a class="btn secondary" href="/">Issue listesine dön</a>
+    </div>
+</main>
+</body>
+</html>

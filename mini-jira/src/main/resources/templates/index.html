@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head th:replace="~{fragments :: head('Issues')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <h1 th:text="${projectName} + ' (' + ${projectKey} + ')'">Demo Shop</h1>
+    <p class="muted">Bir şablonla bug aç; <code>ai-bugfix</code> etiketi webhook'u tetikler ve agent işe başlar.</p>
+
+    <div class="templates">
+        <div class="card" th:each="t : ${templates}">
+            <strong th:text="${t.title()}">Şablon</strong>
+            <p class="muted" th:text="${t.hint()}">açıklama</p>
+            <a class="btn" th:href="@{/issues/new(template=${t.id()})}">Bu bug'ı oluştur</a>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+        <h2>Issues</h2>
+        <p class="muted" th:if="${#lists.isEmpty(issues)}">Henüz issue yok.</p>
+        <table th:unless="${#lists.isEmpty(issues)}">
+            <thead><tr><th>Key</th><th>Özet</th><th>Öncelik</th><th>Durum</th><th>Etiketler</th><th>Yorum</th></tr></thead>
+            <tbody>
+            <tr th:each="i : ${issues}">
+                <td><a th:href="@{/browse/{k}(k=${i.key()})}" th:text="${i.key()}">SHOP-1</a></td>
+                <td th:text="${i.summary()}">özet</td>
+                <td th:text="${i.priority()}">High</td>
+                <td th:text="${i.status()}">To Do</td>
+                <td><span class="lozenge" th:each="l : ${i.labels()}" th:text="${l}">label</span></td>
+                <td th:text="${#lists.size(i.comments())}">0</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

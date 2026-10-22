@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head th:replace="~{fragments :: head('Webhooks')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <div class="card">
+        <h1>Webhook gönderimleri</h1>
+        <p class="muted">Son 100 deneme. Bağlantı hatası ve 5xx yanıtlarda üstel beklemeyle yeniden denenir.</p>
+        <p class="muted" th:if="${#lists.isEmpty(deliveries)}">Henüz gönderim yok.</p>
+        <table th:unless="${#lists.isEmpty(deliveries)}">
+            <thead><tr><th>Zaman</th><th>Issue</th><th>Olay</th><th>Deneme</th><th>Sonuç</th><th>Yanıt</th></tr></thead>
+            <tbody>
+            <tr th:each="row : ${deliveries}" th:with="d=${row.delivery()}">
+                <td th:text="${row.time()}">10:00:00</td>
+                <td><a th:href="@{/browse/{k}(k=${d.issueKey()})}" th:text="${d.issueKey()}">SHOP-1</a></td>
+                <td><code th:text="${d.event()}">jira:issue_created</code></td>
+                <td th:text="${d.attempt()}">1</td>
+                <td>
+                    <span th:if="${d.success()}" class="lozenge ok" th:text="${d.httpStatus()}">202</span>
+                    <span th:unless="${d.success()}" class="lozenge bad"
+                          th:text="${d.httpStatus() != null} ? ${d.httpStatus()} : 'hata'">hata</span>
+                </td>
+                <td class="muted wrap-anywhere" th:text="${d.error() != null} ? ${d.error()} : ${d.responseBody()}">yanıt</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

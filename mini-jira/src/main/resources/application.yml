@@ -1,0 +1,41 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: mini-jira
+  config:
+    import: "optional:file:.env[.properties],optional:file:../.env[.properties]"
+  threads:
+    virtual:
+      enabled: true
+  http:
+    client:
+      connect-timeout: 5s
+      read-timeout: 15s
+  datasource:
+    url: ${MINIJIRA_DB_URL:jdbc:h2:file:./data/mini-jira}
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+mini-jira:
+  username: ${MINIJIRA_USERNAME:bugfix-bot}
+  api-token: ${MINIJIRA_API_TOKEN:${JIRA_API_TOKEN:local-dev-token}}
+  public-url: ${MINIJIRA_PUBLIC_URL:http://localhost:8081}
+  project-key: ${MINIJIRA_PROJECT_KEY:SHOP}
+  project-name: ${MINIJIRA_PROJECT_NAME:Demo Shop}
+  webhook:
+    enabled: ${MINIJIRA_WEBHOOK_ENABLED:true}
+    url: ${MINIJIRA_WEBHOOK_URL:http://localhost:8080/webhooks/jira}
+    secret: ${MINIJIRA_WEBHOOK_SECRET:${JIRA_WEBHOOK_SECRET:local-webhook-secret}}
+    max-attempts: 4

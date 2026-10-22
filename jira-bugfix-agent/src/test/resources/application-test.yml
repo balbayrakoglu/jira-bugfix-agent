@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:bugfix-test;DB_CLOSE_DELAY=-1
+
+agent:
+  admin-token: test-admin-token
+  jira:
+    base-url: https://example.atlassian.net
+    email: bot@example.com
+    api-token: test
+    webhook-secret: test-secret
+  anthropic:
+    api-key: test
+  github:
+    token: test
+    owner: acme
+    repo: shop
+  confluence:
+    enabled: false
+  repo:
+    work-dir: ${java.io.tmpdir}/bugfix-agent-test

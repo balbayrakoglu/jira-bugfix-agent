@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head th:replace="~{fragments :: head('Yeni bug')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main>
+    <div class="card">
+        <h1>Yeni bug</h1>
+        <p class="muted" th:if="${!#strings.isEmpty(template.hint())}" th:text="${template.hint()}">ipucu</p>
+        <form method="post" th:action="@{/issues}">
+            <input type="hidden" name="issueType" value="Bug">
+            <label for="summary">Özet</label>
+            <input id="summary" type="text" name="summary" required maxlength="255" th:value="${template.summary()}">
+
+            <label for="description">Açıklama (Jira wiki markup)</label>
+            <textarea id="description" name="description" rows="16" th:text="${template.description()}"></textarea>
+
+            <div class="row">
+                <div>
+                    <label for="priority">Öncelik</label>
+                    <select id="priority" name="priority">
+                        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"
+                                th:selected="${p == template.priority()}">Medium</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="labels">Etiketler (virgülle)</label>
+                    <input id="labels" type="text" name="labels" th:value="${labelsText}">
+                </div>
+            </div>
+            <p class="muted">
+                <code>ai-bugfix</code> = agent'ı tetikler ·
+                <code>ai-auto-fix</code> = otomatik PR ·
+                <code>ai-analyze-only</code> = sadece analiz ·
+                High/Highest öncelik = otomatik PR
+            </p>
+            <button class="btn" type="submit">Oluştur</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

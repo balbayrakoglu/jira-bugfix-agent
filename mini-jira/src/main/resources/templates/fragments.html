@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Mini-Jira'">Mini-Jira</title>
+    <style>
+        :root {
+            --bg: #f4f5f7; --surface: #ffffff; --text: #172b4d; --muted: #5e6c84; --border: #dfe1e6;
+            --accent: #0052cc; --accent-text: #ffffff; --ok: #006644; --ok-bg: #e3fcef; --bad: #bf2600; --bad-bg: #ffebe6;
+            --agent-bg: #f3f0ff; --agent-border: #6554c0; --code-bg: #f4f5f7;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #161a1d; --surface: #22272b; --text: #dee4ea; --muted: #9fadbc; --border: #38414a;
+                --accent: #579dff; --accent-text: #161a1d; --ok: #7ee2b8; --ok-bg: #1c3329; --bad: #fd9891; --bad-bg: #42221f;
+                --agent-bg: #2b273f; --agent-border: #9f8fef; --code-bg: #1d2125;
+            }
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+               background: var(--bg); color: var(--text); }
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px;
+                 display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        header .brand { font-weight: 700; color: var(--accent); text-decoration: none; }
+        header nav a { color: var(--muted); text-decoration: none; margin-right: 12px; }
+        header nav a:hover { color: var(--text); }
+        header .hook { margin-left: auto; font-size: 13px; color: var(--muted); }
+        main { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+        h1 { font-size: 22px; margin: 0 0 8px; } h2 { font-size: 17px; margin: 0 0 12px; }
+        a { color: var(--accent); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { color: var(--muted); font-weight: 600; font-size: 13px; }
+        .muted { color: var(--muted); font-size: 13px; }
+        .lozenge { display: inline-block; padding: 0 6px; border-radius: 3px; font-size: 12px; font-weight: 600;
+                   background: var(--code-bg); border: 1px solid var(--border); margin: 0 4px 4px 0; }
+        .lozenge.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+        .lozenge.bad { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+        .btn { display: inline-block; background: var(--accent); color: var(--accent-text); border: 0; border-radius: 4px;
+               padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+        input[type=text], textarea, select { width: 100%; padding: 8px; font: inherit; color: var(--text);
+               background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+        textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+        label { display: block; font-weight: 600; font-size: 13px; margin: 12px 0 4px; }
+        .row { display: flex; gap: 12px; flex-wrap: wrap; } .row > * { flex: 1 1 200px; }
+        .templates { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .templates .card { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+        .templates .card p { margin: 0; flex: 1; }
+        pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px;
+              overflow-x: auto; font-size: 13px; }
+        code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+        .comment { border-left: 3px solid var(--border); padding: 8px 12px; margin-bottom: 12px; }
+        .comment.agent { background: var(--agent-bg); border-left-color: var(--agent-border); border-radius: 0 4px 4px 0; }
+        .inline-form { display: flex; gap: 8px; align-items: center; }
+        .inline-form input, .inline-form select { flex: 1; }
+        .watch { font-size: 13px; color: var(--muted); }
+        .wrap-anywhere { overflow-wrap: anywhere; }
+    </style>
+</head>
+<body>
+<header th:fragment="header">
+    <a class="brand" href="/">◆ Mini-Jira</a>
+    <nav>
+        <a href="/">Issues</a>
+        <a href="/issues/new">Yeni bug</a>
+        <a href="/webhooks">Webhooks</a>
+    </nav>
+    <span class="hook wrap-anywhere" th:if="${webhookUrl}">Webhook → <code th:text="${webhookUrl}"></code></span>
+    <span class="hook" th:unless="${webhookUrl}">Webhook kapalı</span>
+</header>
+</body>
+</html>

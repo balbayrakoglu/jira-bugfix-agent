@@ -1,0 +1,79 @@
+{
+  "name": "submit_bug_analysis",
+  "description": "Submit the root-cause analysis and the proposed code fix for the Jira bug. Call this exactly once.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "summary": {
+        "type": "string",
+        "description": "One or two sentences describing the bug in plain language."
+      },
+      "root_cause": {
+        "type": "string",
+        "description": "Technical root cause, referencing concrete classes/methods from the provided files."
+      },
+      "affected_components": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Classes, modules or endpoints affected by the bug."
+      },
+      "fix_description": {
+        "type": "string",
+        "description": "What the fix changes and why it resolves the root cause."
+      },
+      "edits": {
+        "type": "array",
+        "description": "Minimal code changes. Empty if no safe fix can be proposed from the provided code.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Repository-relative path, exactly as given in the <file path=...> tag (or a new file path)."
+            },
+            "old_text": {
+              "type": "string",
+              "description": "Exact text copied verbatim from the file, including indentation, that occurs exactly once. Empty string only when creating a new file."
+            },
+            "new_text": {
+              "type": "string",
+              "description": "Replacement text."
+            },
+            "explanation": {
+              "type": "string",
+              "description": "Why this specific change is needed."
+            }
+          },
+          "required": ["path", "old_text", "new_text", "explanation"]
+        }
+      },
+      "testing_notes": {
+        "type": "string",
+        "description": "How to verify the fix: tests added or to add, manual steps, edge cases."
+      },
+      "risk_level": {
+        "type": "string",
+        "enum": ["LOW", "MEDIUM", "HIGH"]
+      },
+      "confidence": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Confidence that the edits fix the bug without regressions."
+      },
+      "needs_human_input": {
+        "type": "boolean",
+        "description": "True when the information or code provided is insufficient for a reliable fix."
+      },
+      "open_questions": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Questions for the developer or reporter."
+      }
+    },
+    "required": [
+      "summary", "root_cause", "affected_components", "fix_description", "edits",
+      "testing_notes", "risk_level", "confidence", "needs_human_input", "open_questions"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+name: bugfix-lab
+
+services:
+  mini-jira:
+    build: ./mini-jira
+    ports:
+      - "127.0.0.1:8081:8081"
+    environment:
+      TZ: Europe/Berlin
+      MINIJIRA_USERNAME: bugfix-bot
+      MINIJIRA_API_TOKEN: ${JIRA_API_TOKEN:?JIRA_API_TOKEN must be set in .env}
+      MINIJIRA_PUBLIC_URL: http://localhost:8081
+      MINIJIRA_PROJECT_KEY: SHOP
+      MINIJIRA_PROJECT_NAME: Demo Shop
+      MINIJIRA_WEBHOOK_URL: http://bugfix-agent:8080/webhooks/jira
+      MINIJIRA_WEBHOOK_SECRET: ${JIRA_WEBHOOK_SECRET:?JIRA_WEBHOOK_SECRET must be set in .env}
+    volumes:
+      - mini-jira-data:/home/minijira/data
+    restart: unless-stopped
+
+  bugfix-agent:
+    build: ./jira-bugfix-agent
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - mini-jira
+    environment:
+      TZ: Europe/Berlin
+      JIRA_BASE_URL: http://mini-jira:8081
+      JIRA_BROWSE_URL: http://localhost:8081
+      JIRA_EMAIL: bugfix-bot
+      JIRA_API_TOKEN: ${JIRA_API_TOKEN}
+      JIRA_WEBHOOK_SECRET: ${JIRA_WEBHOOK_SECRET}
+
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY must be set in .env}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5-5}
+      AGENT_DOC_LANGUAGE: ${AGENT_DOC_LANGUAGE:-English}
+
+      GITHUB_TOKEN: ${GITHUB_TOKEN:?GITHUB_TOKEN must be set in .env}
+      GITHUB_OWNER: ${GITHUB_OWNER:?GITHUB_OWNER must be set in .env}
+      GITHUB_REPO: ${GITHUB_REPO:-demo-shop}
+      GITHUB_BASE_BRANCH: ${GITHUB_BASE_BRANCH:-main}
+
+      CONFLUENCE_ENABLED: "false"
+      AGENT_VERIFY_COMMAND: mvn -B -q verify
+      AGENT_ADMIN_TOKEN: ${AGENT_ADMIN_TOKEN:-local-admin}
+      DB_URL: jdbc:h2:file:/home/agent/data/bugfix-agent
+    volumes:
+      - agent-data:/home/agent/data
+      - maven-cache:/home/agent/.m2
+    restart: unless-stopped
+
+volumes:
+  mini-jira-data:
+  agent-data:
+  maven-cache:
